@@ -16,4 +16,6 @@ public class Role {
     private int id;
     private String title;
     private String description;
+//    @OneToOne(mappedBy = "role")
+//    private User user;
 }

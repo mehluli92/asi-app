@@ -22,8 +22,9 @@ public class User {
     private Boolean subscribed;
     private Boolean disabled;
     private Boolean freelancer;
-//    @OneToOne(cascade = CascadeType.ALL)
-//    @JoinColumn(name = "contact_id")
-
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "contact_id", referencedColumnName = "id")
+    private Contact contact;
+    private Long role_id;
 
 }

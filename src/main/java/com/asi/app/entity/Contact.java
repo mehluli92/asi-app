@@ -3,9 +3,11 @@ package com.asi.app.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "contacts")
 public class Contact {
@@ -18,6 +20,6 @@ public class Contact {
     private String country;
     private String phoneNumber;
     private String mobileNumber;
-//    @OneToOne(mappedBy = "contacts")
-//    private User user;
+    @OneToOne(mappedBy = "contact")
+    private User user;
 }
