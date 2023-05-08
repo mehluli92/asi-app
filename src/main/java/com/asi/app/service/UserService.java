@@ -4,7 +4,10 @@ import com.asi.app.entity.Contact;
 import com.asi.app.entity.User;
 import com.asi.app.repository.ContactRepository;
 import com.asi.app.repository.UserRepository;
+import com.asi.app.security.IAuthenticationFacade;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,9 +16,16 @@ import java.util.List;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+    @Autowired
     private ContactRepository contactRepository;
+    @Autowired
+    private IAuthenticationFacade authenticationFacade;
 
+
+    @Secured("ROLE_ANONYMOUS")
     public User saveUser(User user){
+        Authentication authentication = authenticationFacade.getAuthentication();
+        user.setFirebase_uid(authentication.getName());
         user.setContact(user.getContact());
         return userRepository.save(user);
     }
@@ -40,19 +50,5 @@ public class UserService {
         existingUser.setContact(user.getContact());
         return userRepository.save(existingUser);
     }
-
-//    public User enableDisable(User user){
-//        User existingUser = userRepository.findById(user.getId()).orElse(null);
-//        String message;
-//        if (existingUser.getDisabled() == true)
-//        {
-//            existingUser.setDisabled(false);
-//            message = "User"+existingUser.getFirstName()+"Has been disabled";
-//        } else {
-//            existingUser.setDisabled(true);
-//            message = "User"+existingUser.getFirstName()+"Has been restored";
-//        }
-//        return existingUser;
-//    }
 
 }

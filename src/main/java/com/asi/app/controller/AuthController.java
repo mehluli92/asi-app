@@ -1,36 +1,49 @@
 package com.asi.app.controller;
 
 import com.asi.app.entity.User;
-import com.asi.app.service.TokenService;
+import com.asi.app.repository.UserRepository;
+import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.WriteResult;
+import com.google.firebase.cloud.FirestoreClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.concurrent.ExecutionException;
 
 @RestController
+@RequestMapping("/api/")
 public class AuthController {
-    private final TokenService tokenService;
-    public  AuthController(TokenService tokenService){
-        this.tokenService = tokenService;
+    @Autowired
+    UserRepository userRepository;
+    @PostMapping("/register")
+    public String register(@RequestBody User user) throws InterruptedException, ExecutionException{
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Firestore firestore = FirestoreClient.getFirestore();
+        String uid = authentication.getName();
+
+        ApiFuture<WriteResult> collectionApiFuture = firestore.collection("users")
+                .document(user.getEmail())
+               // .document(user.getPassword())
+                .set(user);
+        return collectionApiFuture.get().getUpdateTime().toString();
     }
 
-
-    @PostMapping("/token")
-    public String token(Authentication authentication){
-        String token = tokenService.generateToken(authentication);
-        return  token;
-    }
-
-    @PostMapping("/signIn")
-    public String signIn(@RequestBody User user){
-        try {
-            String username = user.getFirstName();
-            String password = user.getPassword();
-
-        } catch (Exception e){
-
+    @GetMapping("/firbaseUser")
+    public User getUser(@RequestParam String id) throws InterruptedException, ExecutionException {
+        Firestore firestore = FirestoreClient.getFirestore();
+        DocumentReference documentReference = firestore.collection("email").document(id);
+        ApiFuture<DocumentSnapshot> future = documentReference.get();
+        DocumentSnapshot documentSnapshot = future.get();
+        User user;
+        if(documentSnapshot.exists()){
+            user = documentSnapshot.toObject(User.class);
+            return user;
         }
-        return " ";
+        return null;
     }
 }
